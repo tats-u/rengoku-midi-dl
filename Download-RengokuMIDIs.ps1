@@ -12,6 +12,7 @@ if ($XGOnly -and $GMOnly) {
 $RengokuDomain = "http://web.archive.org" 
 $RengokuRoot = "/web/20190113060708/http://www.rengoku-teien.com"
 $MIDIRoot = "$RengokuRoot/midi/"
+# HACK: https://web.archive.org/web/(日付)if_/http:// とすると直接ダウンロード可能
 $MIDIDLRoot = $MIDIRoot -replace "/(https?://)", 'if_/$1'
 
 $RulePage = Invoke-WebRequest "$RengokuDomain$RengokuRoot/rule/index.html"
@@ -75,12 +76,3 @@ $Matrix | ForEach-Object {
         }
     }
 }
-
-# $MIDIs = $GenrePages | ForEach-Object {
-#     (Invoke-WebRequest "$RengokuDomain$_").Links.Href | Where-Object {
-#         ($_ -like "*.mid") # -and -not ( $_ -like "*_gm.mid")
-#     }
-# }
-
-# HACK: https://web.archive.org/web/(日付)if_/http:// とすると直接ダウンロード可能
-# $MIDIs -replace "/http","if_/http" | ForEach-Object { (Invoke-WebRequest "$RengokuDomain$MIDIRoot$_") }
