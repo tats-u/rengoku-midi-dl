@@ -32,14 +32,15 @@ $MIDIPages.Keys | ForEach-Object {
             $_ -like "*.mid"
         }
         $GM = $MIDIs | Where-Object { $_ -like "*_gm.mid" }
-        $XG = $MIDIs | Where-Object { -not $_ -like "*_gm.mid" }
+        $XG = $MIDIs | Where-Object { -not ($_ -like "*_gm.mid") }
+        Write-Debug ($XG | ConvertTo-Json)
         if ($XGMIDIs.ContainsKey($Genre)) {
             $XGMIDIs[$Genre] = ($XGMIDIs[$Genre] + $XG) | Sort-Object -Unique
             $GMMIDIs[$Genre] = ($GMMIDIs[$Genre] + $GM) | Sort-Object -Unique
         }
         else {
             $XGMIDIs.Add($Genre, $XG)
-            $GMMIDIs.add($Genre, $GM)
+            $GMMIDIs.Add($Genre, $GM)
         }
     }
 }
