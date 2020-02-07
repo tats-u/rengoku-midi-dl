@@ -1,7 +1,12 @@
 ﻿#!/usr/bin/env pwsh
 
 [CmdletBinding()]
-param ()
+param ([switch]$GMOnly, [switch]$XGOnly)
+
+if ($XGOnly -and $GMOnly) {
+    Write-Error "フラグ -XGOnly と -GMOnly は同時に指定できません" -Category InvalidArgument
+    exit 1
+}
 
 # 本サイトは消えているためアーカイブサイト
 $RengokuDomain = "http://web.archive.org" 
@@ -33,7 +38,6 @@ $MIDIPages.Keys | ForEach-Object {
         }
         $GM = $MIDIs | Where-Object { $_ -like "*_gm.mid" }
         $XG = $MIDIs | Where-Object { -not ($_ -like "*_gm.mid") }
-        Write-Debug ($XG | ConvertTo-Json)
         if ($XGMIDIs.ContainsKey($Genre)) {
             $XGMIDIs[$Genre] = ($XGMIDIs[$Genre] + $XG) | Sort-Object -Unique
             $GMMIDIs[$Genre] = ($GMMIDIs[$Genre] + $GM) | Sort-Object -Unique
@@ -44,7 +48,15 @@ $MIDIPages.Keys | ForEach-Object {
         }
     }
 }
-("xg", $XGMIDIs), ("gm", $GMMIDIs) | ForEach-Object {
+$Matrix = @()
+if (-not $GMOnly) {
+    # HACK: 「,」がないと配列の配列にならない
+    $Matrix += , ("xg", $XGMIDIs)
+}
+if (-not $XGOnly) {
+    $Matrix += , ("gm", $GMMIDIs)
+}
+$Matrix | ForEach-Object {
     $Type = $_[0]
     $MIDIs = $_[1]
     New-Item -ItemType Directory -Force -Name $Type > $null
